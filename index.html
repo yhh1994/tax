@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tax News Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-6 max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold mb-4">Tax News Tracker</h1>
+  <input type="text" id="search" placeholder="Search tax topics (e.g. R&D, SEC 174, tariffs)..." 
+         class="w-full p-3 border rounded-lg mb-6 shadow-sm">
+  <div id="feed" class="space-y-4"></div>
+
+  <script>
+    let articles = [];
+    async function loadNews() {
+      const res = await fetch('./data/news.json');
+      articles = await res.json();
+      render(articles);
+    }
+
+    function render(data) {
+      const container = document.getElementById('feed');
+      container.innerHTML = data.map(item => `
+        <div class="p-4 bg-white rounded-lg border shadow-sm hover:shadow-md transition">
+          <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded">${item.source}</span>
+          <a href="${item.link}" target="_blank" class="block text-lg font-bold text-gray-900 mt-2 hover:underline">${item.title}</a>
+          <p class="text-sm text-gray-600 mt-1">${item.summary}</p>
+          <p class="text-xs text-gray-400 mt-2">${item.published}</p>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = articles.filter(a => a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q));
+      render(filtered);
+    });
+
+    loadNews();
+  </script>
+</body>
+</html>
