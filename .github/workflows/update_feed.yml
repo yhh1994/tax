@@ -26,6 +26,8 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Fetch News Data
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/fetch_news.py
 
       - name: Commit and Push Updates
