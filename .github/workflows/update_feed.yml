@@ -18,7 +18,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        run: pip install feedparser
+        run: pip install -r scripts/requirements.txt
 
       - name: Fetch News Data
         run: python scripts/fetch_news.py
