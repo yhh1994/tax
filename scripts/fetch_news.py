@@ -4,7 +4,16 @@ from google import genai
 from google.genai import types
 import os
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    raise RuntimeError(
+        "GEMINI_API_KEY is not available in the GitHub Actions environment."
+    )
+
+print("GEMINI_API_KEY is configured.")
+client = genai.Client(api_key=api_key)
+
 
 prompt = """
 Search for the top 5 latest tax news updates, IRS announcements, or tax policy updates from the past week.
