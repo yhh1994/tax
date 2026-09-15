@@ -1,141 +1,56 @@
-import feedparser
 import json
-import os
-import time
-import requests
 import re
-from time import mktime
-from datetime import datetime
 from google import genai
+from google.genai import types
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-}
+# Initialize the Gemini client
+client = genai.Client()
 
-api_key = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key) if api_key else None
+prompt = """
+Search for the top 5 latest tax news updates, IRS announcements, or tax policy updates from the past week.
 
-FEEDS = {
-    "IRS Newsroom": "https://www.irs.gov/newsroom/",
-    "Tax Foundation": "https://taxfoundation.org/feed/",
-    "US Treasury": "https://home.treasury.gov/news/press-releases",
-    "The CPA Journal": "https://www.accountingweb.co.uk/rss",
-    "Journal of Accountancy (Tax)": "http://journalofaccountancy.com/topics/tax/"
-}
+For each item, format the output strictly as a JSON list of objects with the following keys:
+- "title": Clean title of the news story
+- "source": Source or organization name (e.g., IRS, Tax Foundation, Wall Street Journal)
+- "published": Publication date or relative time (e.g., "2026-09-14" or "2 days ago")
+- "link": Direct reference link or news page URL if available
+- "summary": A 1-2 sentence summary highlighting the practical tax impact
+- "tags": A list of up to 3 short string tags (e.g., ["IRS", "Corporate Tax", "Deductions"])
 
-def clean_html(raw_html):
-    """Remove HTML tags and extra whitespace from RSS snippets."""
-    clean_text = re.sub(r'<[^>]+>', '', raw_html)
-    return " ".join(clean_text.split())
+Return ONLY valid JSON matching this schema:
+[
+  {
+    "title": "...",
+    "source": "...",
+    "published": "...",
+    "link": "...",
+    "summary": "...",
+    "tags": ["...", "..."]
+  }
+]
+"""
 
-def analyze_with_gemini(text):
-    clean_snippet = clean_html(text)[:1000]  # Limit input tokens
-    if not client or not clean_snippet:
-        return clean_snippet[:250] + "...", ["Untagged"]
-    
-    prompt = f"""
-    Analyze this tax news snippet: "{clean_snippet}"
-    1. Write a 1-sentence summary focusing on the practical impact.
-    2. Provide up to 3 short category tags (e.g., Corporate Tax, IRS, Tariffs).
-    
-    Output strictly in this format:
-    Summary: <summary text>
-    Tags: <tag1, tag2, tag3>
-    """
-    
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt
+try:
+    # Pass 'google_search' in tools to enable live web search
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            tools=[{"google_search": {}}]
         )
-        result = response.text or ""
-        
-        # Resilient regex parsing insensitive to case
-        summary_match = re.search(r"Summary:\s*(.*?)(?=Tags:|$)", result, re.IGNORECASE | re.DOTALL)
-        tags_match = re.search(r"Tags:\s*(.*)", result, re.IGNORECASE)
-        
-        summary = summary_match.group(1).strip() if summary_match else clean_snippet[:250] + "..."
-        
-        if tags_match:
-            tags = [t.strip() for t in tags_match.group(1).split(",") if t.strip()]
-        else:
-            tags = ["General"]
-            
-        return summary, tags
-    except Exception as e:
-        print(f"Gemini API error: {e}")
-        return clean_snippet[:250] + "...", ["General"]
+    )
 
-def fetch_all():
-    # Load previously processed articles to prevent re-summarizing and save API quota
-    existing_items = {}
-    if os.path.exists('data/news.json'):
-        try:
-            with open('data/news.json', 'r') as f:
-                saved_data = json.load(f)
-                existing_items = {item['link']: item for item in saved_data if 'link' in item}
-        except Exception as e:
-            print(f"Could not load existing data: {e}")
-
-    news_items = []
+    # Extract JSON string from response
+    raw_text = response.text.strip()
+    json_match = re.search(r'\[.*\]', raw_text, re.DOTALL)
     
-    for source, url in FEEDS.items():
-        print(f"\n--- Fetching: {source} ---")
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=10)
-            if resp.status_code != 200:
-                print(f"Failed to fetch {source}: HTTP Status {resp.status_code}")
-                continue
-            
-            feed = feedparser.parse(resp.content)
-            print(f"Found {len(feed.entries)} entries for {source}")
+    if json_match:
+        news_data = json.loads(json_match.group(0))
+        with open('./data/news.json', 'w') as f:
+            json.dump(news_data, f, indent=2)
+        print(f"Successfully generated {len(news_data)} tax news items with Gemini.")
+    else:
+        print("Failed to parse JSON array from Gemini response.")
 
-            for entry in feed.entries[:8]:  # Top 8 per source
-                link = entry.get("link", "")
-                
-                # Deduplication: Re-use cached summary if link exists
-                if link in existing_items:
-                    print(f"Cached item found, skipping API call: {entry.title[:40]}...")
-                    news_items.append(existing_items[link])
-                    continue
-
-                raw_summary = entry.get("summary", entry.get("title", ""))
-                
-                # Standardize publish date and epoch timestamp for reliable sorting
-                parsed_time = entry.get("published_parsed") or entry.get("updated_parsed")
-                timestamp = mktime(parsed_time) if parsed_time else 0
-                pub_date = entry.get("published") or entry.get("updated") or ""
-
-                print(f"Analyzing new item: {entry.title[:40]}...")
-                ai_summary, ai_tags = analyze_with_gemini(raw_summary)
-                
-                news_items.append({
-                    "title": entry.title,
-                    "link": link,
-                    "published": pub_date,
-                    "timestamp": timestamp,
-                    "source": source,
-                    "summary": ai_summary,
-                    "tags": ai_tags
-                })
-                
-                if client:
-                    time.sleep(3)  # Rate limit control
-
-        except Exception as e:
-            print(f"Error reading {source}: {e}")
-
-    if news_items:
-        # Deduplicate globally by link and sort by numeric epoch timestamp
-        unique_items = list({item['link']: item for item in news_items}.values())
-        unique_items.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-        
-        # Keep recent 100 entries max to keep news.json lightweight
-        final_feed = unique_items[:100]
-        
-        with open('data/news.json', 'w') as f:
-            json.dump(final_feed, f, indent=2)
-        print(f"\nSuccessfully saved {len(final_feed)} items to data/news.json")
-
-if __name__ == "__main__":
-    fetch_all()
+except Exception as e:
+    print(f"Error executing Gemini search request: {e}")
