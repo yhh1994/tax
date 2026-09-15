@@ -16,10 +16,10 @@ api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key) if api_key else None
 
 FEEDS = {
-    "IRS Newsroom": "https://www.irs.gov/newsroom/news-releases-for-current-month/",
+    "IRS Newsroom": "https://www.irs.gov/newsroom/",
     "Tax Foundation": "https://taxfoundation.org/feed/",
     "US Treasury": "https://home.treasury.gov/news/press-releases",
-    "Tax Policy Center": "https://taxpolicycenter.org/research",
+    "The CPA Journal": "https://www.accountingweb.co.uk/rss",
     "Journal of Accountancy (Tax)": "http://journalofaccountancy.com/topics/tax/"
 }
 
