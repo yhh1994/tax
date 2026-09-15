@@ -3,7 +3,6 @@ import re
 from google import genai
 from google.genai import types
 
-# Initialize the Gemini client
 client = genai.Client()
 
 prompt = """
@@ -31,16 +30,18 @@ Return ONLY valid JSON matching this schema:
 """
 
 try:
-    # Pass 'google_search' in tools to enable live web search
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
-            tools=[{"google_search": {}}]
+            tools=[
+                types.Tool(
+                    google_search=types.GoogleSearch()
+                )
+            ]
         )
     )
 
-    # Extract JSON string from response
     raw_text = response.text.strip()
     json_match = re.search(r'\[.*\]', raw_text, re.DOTALL)
     
