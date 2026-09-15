@@ -2,8 +2,9 @@ import json
 import re
 from google import genai
 from google.genai import types
+import os
 
-client = genai.Client()
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 prompt = """
 Search for the top 5 latest tax news updates, IRS announcements, or tax policy updates from the past week.
