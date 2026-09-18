@@ -1,67 +1,82 @@
+import feedparser
 import json
-import re
-from google import genai
-from google.genai import types
 import os
+import re
+import requests
+from time import mktime
 
-api_key = os.getenv("GEMINI_API_KEY")
+# Custom headers prevent government servers (IRS/Treasury) from blocking requests
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+}
 
-if not api_key:
-    raise RuntimeError(
-        "GEMINI_API_KEY is not available in the GitHub Actions environment."
-    )
+FEEDS = {
+    "IRS Newsroom": "https://www.irs.gov/newsroom/feed",
+    "Tax Foundation": "https://taxfoundation.org/feed/",
+    "US Treasury": "https://home.treasury.gov/rss/news/press-releases",
+    "Tax Policy Center": "https://www.taxpolicycenter.org/rss/taxvox",
+    "Journal of Accountancy (Tax)": "https://www.journalofaccountancy.com/rss/tax.xml"
+}
 
-print("GEMINI_API_KEY is configured.")
-client = genai.Client(api_key=api_key)
+def clean_summary(raw_html, max_length=280):
+    """Strips HTML tags and trims text cleanly to a sentence boundary."""
+    if not raw_html:
+        return ""
+    clean_text = re.sub(r'<[^>]+>', '', raw_html)
+    clean_text = " ".join(clean_text.split())
+    if len(clean_text) > max_length:
+        return clean_text[:max_length].rsplit(' ', 1)[0] + "..."
+    return clean_text
 
-
-prompt = """
-Search for the top 5 latest tax news updates, IRS announcements, or tax policy updates from the past week.
-
-For each item, format the output strictly as a JSON list of objects with the following keys:
-- "title": Clean title of the news story
-- "source": Source or organization name (e.g., IRS, Tax Foundation, Wall Street Journal)
-- "published": Publication date or relative time (e.g., "2026-09-14" or "2 days ago")
-- "link": Direct reference link or news page URL if available
-- "summary": A 1-2 sentence summary highlighting the practical tax impact
-- "tags": A list of up to 3 short string tags (e.g., ["IRS", "Corporate Tax", "Deductions"])
-
-Return ONLY valid JSON matching this schema:
-[
-  {
-    "title": "...",
-    "source": "...",
-    "published": "...",
-    "link": "...",
-    "summary": "...",
-    "tags": ["...", "..."]
-  }
-]
-"""
-
-try:
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[
-                types.Tool(
-                    google_search=types.GoogleSearch()
-                )
-            ]
-        )
-    )
-
-    raw_text = response.text.strip()
-    json_match = re.search(r'\[.*\]', raw_text, re.DOTALL)
+def fetch_all():
+    news_items = []
     
-    if json_match:
-        news_data = json.loads(json_match.group(0))
-        with open('./data/news.json', 'w') as f:
-            json.dump(news_data, f, indent=2)
-        print(f"Successfully generated {len(news_data)} tax news items with Gemini.")
-    else:
-        print("Failed to parse JSON array from Gemini response.")
+    for source, url in FEEDS.items():
+        print(f"Fetching: {source}")
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=10)
+            if resp.status_code != 200:
+                print(f"  Failed: Status {resp.status_code}")
+                continue
+            
+            feed = feedparser.parse(resp.content)
+            print(f"  Found {len(feed.entries)} entries")
 
-except Exception as e:
-    print(f"Error executing Gemini search request: {e}")
+            for entry in feed.entries[:10]:  # Top 10 entries per source
+                link = entry.get("link", "")
+                raw_summary = entry.get("summary", entry.get("description", entry.get("title", "")))
+                
+                # Convert structured date tuples to numeric timestamps for accurate sorting
+                parsed_time = entry.get("published_parsed") or entry.get("updated_parsed")
+                timestamp = mktime(parsed_time) if parsed_time else 0
+                pub_date = entry.get("published") or entry.get("updated") or ""
+
+                news_items.append({
+                    "title": entry.get("title", ""),
+                    "link": link,
+                    "published": pub_date,
+                    "timestamp": timestamp,
+                    "source": source,
+                    "summary": clean_summary(raw_summary)
+                })
+
+        except Exception as e:
+            print(f"  Error reading {source}: {e}")
+
+    if news_items:
+        # Deduplicate globally by article URL
+        unique_items = list({item['link']: item for item in news_items if item['link']}.values())
+        
+        # Sort chronologically by publication timestamp
+        unique_items.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+        
+        # Keep recent 100 entries
+        final_feed = unique_items[:100]
+        
+        os.makedirs('data', exist_ok=True)
+        with open('data/news.json', 'w') as f:
+            json.dump(final_feed, f, indent=2)
+        print(f"\nSuccessfully saved {len(final_feed)} items to data/news.json")
+
+if __name__ == "__main__":
+    fetch_all()
