@@ -1,5 +1,13 @@
 [
   {
+    "title": "Beer Taxes in Europe, 2026",
+    "link": "https://taxfoundation.org/data/all/eu/beer-taxes-europe/",
+    "published": "September 21, 2026 08:55:48 +0000",
+    "timestamp": 0,
+    "source": "Tax Foundation",
+    "summary": "With much of the continent celebrating Oktoberfest, it is a great time to examine beer taxes across Europe. Hefty beer taxes increase the price consumers pay for their libations."
+  },
+  {
     "title": "Three Facts Straightening Out the Debate Over Bonus Depreciation",
     "link": "https://taxfoundation.org/blog/three-facts-straightening-out-the-debate-over-bonus-depreciation/",
     "published": "September 17, 2026 16:24:47 +0000",
@@ -70,13 +78,5 @@
     "timestamp": 0,
     "source": "Tax Foundation",
     "summary": "Most Americans don\u2019t understand how the tax code works. According to a poll conducted by TaxEDU, a majority of respondents do not have a basic understanding of common tax concepts."
-  },
-  {
-    "title": "The Tax Problem You, Me, and Patrick Mahomes Have in Common",
-    "link": "https://taxfoundation.org/blog/common-tax-problem-you-me-patrick-mahomes/",
-    "published": "September 9, 2026 20:15:24 +0000",
-    "timestamp": 0,
-    "source": "Tax Foundation",
-    "summary": "Jock taxes on highly paid athletes and entertainers are here to stay, but states could make life easier for the rest of us, at very little cost, by adopting reasonable nonresident filing and withholding thresholds for ordinary taxpayers."
   }
 ]
