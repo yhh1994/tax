@@ -1,5 +1,13 @@
 [
   {
+    "title": "Combined State and Federal Corporate Income Tax Rates in 2026",
+    "link": "https://taxfoundation.org/data/all/federal/combined-state-federal-corporate-income-tax-rates-2026/",
+    "published": "October 9, 2026 16:41:13 +0000",
+    "timestamp": 0,
+    "source": "Tax Foundation",
+    "summary": "Corporations in the United States pay federal corporate income taxes levied at a 21 percent rate. Forty-four states and D.C. also levy taxes on corporate income, with top marginal rates ranging from 2.5 percent in North Carolina to 11.5 percent in New Jersey."
+  },
+  {
     "title": "The 2026 Ballot Measures Shaping State Taxes",
     "link": "https://taxfoundation.org/podcast/all/election-podcast-2026-ballot-measures-shaping-state-taxes/",
     "published": "October 7, 2026 19:27:19 +0000",
@@ -70,13 +78,5 @@
     "timestamp": 0,
     "source": "Tax Foundation",
     "summary": "The proposed GROWTH Act would make the tax treatment of investment funds more consistent and improve the tax treatment of saving in the US by allowing investors to defer tax on qualifying reinvested capital gains distributions until they sell their fund shares."
-  },
-  {
-    "title": "Federal Surcharge Drives Another Increase in Wireless Taxes and Fees in 2026",
-    "link": "https://taxfoundation.org/data/all/state/wireless-taxes-cell-phone-tax-rates-by-state-2026/",
-    "published": "September 28, 2026 21:34:36 +0000",
-    "timestamp": 0,
-    "source": "Tax Foundation",
-    "summary": "Applying the sales tax, a traditional broad-based consumption tax, is perfectly appropriate, but excessive targeted taxation of wireless services lacks the traditional justifications\u2014a user-pays system or the internalization of social costs\u2014for excise taxation, raising consumer..."
   }
 ]
