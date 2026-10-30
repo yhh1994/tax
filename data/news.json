@@ -1,5 +1,29 @@
 [
   {
+    "title": "New Research Finds That Revenue-Maximizing Top Tax Rate Likely Lower Than Previous Estimates",
+    "link": "https://taxfoundation.org/blog/laffer-curve-revenue-maximizing-tax-rate/",
+    "published": "October 30, 2026 15:40:51 +0000",
+    "timestamp": 0,
+    "source": "Tax Foundation",
+    "summary": "A new paper shows raising top income tax rates on the current tax base may not yield as much revenue as previously estimated, due to opportunities to shift income to different tax bases within the tax code."
+  },
+  {
+    "title": "Property Tax Relief on the Ballot: Three Approaches, One Clear Winner",
+    "link": "https://taxfoundation.org/blog/property-tax-ballot-measures-2026/",
+    "published": "October 30, 2026 15:24:49 +0000",
+    "timestamp": 0,
+    "source": "Tax Foundation",
+    "summary": "This November, states across the country are asking voters to consider changes to their state constitutions to address the burden of rising property taxes."
+  },
+  {
+    "title": "A \u201cToken Tax\u201d Could Kill the Promise of AI",
+    "link": "https://taxfoundation.org/oped/a-token-tax-could-kill-the-promise-of-ai/",
+    "published": "October 30, 2026 15:13:32 +0000",
+    "timestamp": 0,
+    "source": "Tax Foundation",
+    "summary": "If we want to ensure that AI raises economic growth, we shouldn\u2019t be pursuing tax policies that are stuck in the past and represent some of the worst ideas from the early internet age."
+  },
+  {
     "title": "How Much Does the US Government Lose to Tax Fraud?",
     "link": "https://taxfoundation.org/blog/how-much-does-the-us-government-lose-to-tax-fraud/",
     "published": "October 27, 2026 18:07:56 +0000",
@@ -54,29 +78,5 @@
     "timestamp": 0,
     "source": "Tax Foundation",
     "summary": "Want to know how much you'll owe during tax filing season? Then you need to know your taxable income."
-  },
-  {
-    "title": "In Wyoming, Are Two Homestead Exemptions Enough?",
-    "link": "https://taxfoundation.org/blog/wyoming-proposition-1-homestead-exemption-property-tax/",
-    "published": "October 22, 2026 20:56:47 +0000",
-    "timestamp": 0,
-    "source": "Tax Foundation",
-    "summary": "No one enjoys paying taxes, but the property tax serves an important purpose, and Wyoming has already implemented significant property tax relief. Proposition 1 would undercut local finances to a degree that would likely force reliance on worse taxes (local or state) and prompt..."
-  },
-  {
-    "title": "Options to Reform the Tax Treatment of Exempt Hospitals",
-    "link": "https://taxfoundation.org/blog/options-to-reform-the-tax-treatment-of-exempt-hospitals/",
-    "published": "October 22, 2026 16:58:35 +0000",
-    "timestamp": 0,
-    "source": "Tax Foundation",
-    "summary": "Nearly half of all hospitals are exempt from paying US corporate income taxes. As healthcare spending rises, lawmakers have questioned whether hospitals are providing as much in community benefits as they derive from tax exemptions."
-  },
-  {
-    "title": "Expensing Concentrates the Corporate Tax Burden on Economic Profits",
-    "link": "https://taxfoundation.org/blog/expensing-concentrates-the-corporate-tax-burden-on-economic-profits/",
-    "published": "October 21, 2026 17:29:37 +0000",
-    "timestamp": 0,
-    "source": "Tax Foundation",
-    "summary": "As scrutiny over data center investment and AI rises, some commentators are concerned about how expensing interacts with these ongoing investments. Most of these concerns misunderstand what expensing does."
   }
 ]
